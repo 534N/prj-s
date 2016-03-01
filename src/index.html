@@ -6,9 +6,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  
+  <script type="text/javascript" src="http://youzikuwebfont.oss-cn-beijing.aliyuncs.com/api.lib.min.js"></script>
 </head>
 <body>
   <div id="root" style="height: 100%"></div>
+
+  <script type="text/javascript" src="http://api.youziku.com/wwwroot/js/g_webfont.min.js"></script>
+  <script type="text/javascript">
+   WebFont.load({
+            custom: {
+            urls: ['http://api.youziku.com/webfont/CSS/56d52c80f629d80d38bd5fee']
+       }
+   });
+   </script>
+   <script type="text/javascript">
+    $youzikuapi.asyncLoad("http://api.youziku.com/webfont/FastJS/yzk_CA85D88087AA423D", function () { 
+    // $youziku.load("#id1", "e12d3498-9cde-4534-adab-51f07eaaba4e", "YouYuan"); 
+    /*$youziku.load("#id2", "e12d3498-9cde-4534-adab-51f07eaaba4e", "YouYuan");*/ 
+    $youziku.load(".youyuan", "e12d3498-9cde-4534-adab-51f07eaaba4e", "YouYuan"); 
+    /*$youziku.load(".class2", "e12d3498-9cde-4534-adab-51f07eaaba4e", "YouYuan");*/ 
+    /*．．．*/ 
+    $youziku.draw();  
+    }) 
+  </script>
 </body>
 </html>

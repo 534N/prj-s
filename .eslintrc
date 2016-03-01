@@ -17,6 +17,6 @@
     "__BASENAME__" : false
   },
   "rules": {
- 
+    "semi" : [2, "always"],
   }
 }

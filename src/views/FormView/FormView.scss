@@ -1,15 +1,68 @@
 
 @import 'flexbox';
+@import 'prefixer-mixin';
 
-.form {
+#form {
   @include flexbox;
   @include flex-direction(column);
   @include align-items(center);
   font-size: 1em;
   width: 100%;
+  .nav {
+    @include flexbox;
+    @include flex-direction(column);
+    @include align-items(center);
+    .title {
+      @include flex-basis(50%);
+      white-space: nowrap;
+      font-family: 'YuLong1d5df1dc9218';
+      font-size: 2em;
+    }
+    .contact {
+      @include flex-basis(50%);
+      color: #fff;
+      font-size: 12px;
+      opacity: 0.5;
+      margin-top: 5px;
+      i {
+        font-size: 1.5em;
+        margin-right: 3px;
+      }
+      .address {
+        @include flexbox;
+        @include flex-direction(row);
+        @include align-items(center);
+        @include justify-content(center);
+        white-space: nowrap;
+      }
+      .phone {
+        @include flexbox;
+        @include flex-direction(row);
+        @include align-items(center);
+        @include justify-content(center);
+        white-space: nowrap;
+      }
+    }
+  }
+  .form{
+    width: 100%;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 -2px 3px rgba(0,0,0,0.3);
+    overflow: hidden;
+  }
   .info {
-    @include flex-basis(30%);
-    .row {
+
+    @include flexbox;
+    @include flex-direction(column);
+    @include align-items(center);
+    @include transform(translate(0, -50px));
+    @include transition(transform 0.5s cubic-bezier(0.23, 1, 0.32, 1) 250ms, opacity 0.3s cubic-bezier(0.23, 1, 0.32, 1) 0ms);
+    &.summary-active {
+      @include transform(translate(0, 0));
+      @include transition(transform 0.5s cubic-bezier(0.23, 1, 0.32, 1) 250ms, opacity 0.3s cubic-bezier(0.23, 1, 0.32, 1) 0ms);
+    }
+    .info-row {
       @include flexbox
       @include flex-direction(row)
       @include align-items(center)
@@ -19,79 +72,118 @@
         font-size: 2em;
         color: #ccc;
       }
+      label {
+        font-family: 'YouYuan1d5fa038a218';
+      }
     }
   }
-  .contact {
-    @include flexbox;
-    @include flex-direction(column);
-    @include align-items(center);
-    font-size: 1.3em;
-    width: 100%;
-    color: #ccc;
-    font-weight: 200;
-    // margin-top:  
-    .address {
-      @include flexbox;
-      @include flex-direction(row);
-      @include align-items(center);
-      i {
-        margin-right: 5px;
-      }
-    }
-    .phone {
-      @include flexbox;
-      @include flex-direction(row);
-      @include align-items(center);
-      i {
-        margin-right: 5px;
-      }
-    }
+  // .contact {
+  //   @include flexbox;
+  //   @include flex-direction(column);
+  //   @include align-items(center);
+  //   font-size: 1.3em;
+  //   width: 100%;
+  //   color: #ccc;
+  //   font-weight: 200;
+  //   @include transform(translate(0, -100px));
+  //   @include transition(transform 0.5s cubic-bezier(0.23, 1, 0.32, 1) 250ms, opacity 0.3s cubic-bezier(0.23, 1, 0.32, 1) 0ms);
+  //   &.data-ready {
+  //     @include transform(translate(0, 0));
+  //     @include transition(transform 0.5s cubic-bezier(0.23, 1, 0.32, 1) 250ms, opacity 0.3s cubic-bezier(0.23, 1, 0.32, 1) 0ms);
+  //   }
+  //   .address {
+  //     @include flexbox;
+  //     @include flex-direction(row);
+  //     @include align-items(center);
+  //     i {
+  //       margin-right: 5px;
+  //     }
+  //   }
+  //   .phone {
+  //     @include flexbox;
+  //     @include flex-direction(row);
+  //     @include align-items(center);
+  //     i {
+  //       margin-right: 5px;
+  //     }
+  //   }
 
-  }
+  // }
   .menu {
     width: 100%;
     margin-top: 1em;
-    border-bottom: 1px solid #eee;
-    ul {
-      list-style: none;
-      li {
-        @include flexbox;
-        @include flex-direction(row);
-        @include align-items(flex-end);
-        line-height: 2em;
-        font-size: 1.4em;
-        color: #555;
-        .item {
-          @include flex-basis(60%);
+    // border-bottom: 1px solid #eee;
+    table {
+      width: 100%;
+      thead {
+        font-size: 0.9em;
+        color: #aaa;
+        border-bottom: 1px solid #ddd;
+        margin-bottom: 5px;
+        tr {
+          line-height: 3em;
         }
-        .price {
-          @include flex-basis(30%);
-          opacity: 0.7;
-          font-size: 0.8em;
-          text-align: right;
-        }
-        .quantity {
-          text-align: right;
-          opacity: 0.7;
-        }
-        .control {
-          @include flexbox;
-          @include justify-content(center);
-          @include align-items(center);
-          @include flex-basis(5%);
-          cursor: pointer;
-          color: #69cb95;
-          height: 40px;
-          opacity: 0.8;
-          &:hover {
-            opacity: 1;
+      }
+      tbody {
+        font-size: 1.2em;
+        color: #888;
+        tr {
+          line-height: 3em;
+          border-bottom: 1px solid #f5f5f5;
+          .item {
+            width: 40%;
           }
-          .remove {
-            color: #f54;
-            opacity: 0.8;
+          .qty {
+            @include flexbox;
+            input {
+              text-align: center;
+              border-radius: 5px;
+              border: 1px solid #ddd;
+            }
+            .control {
+              @include flexbox;
+              @include justify-content(center);
+              @include align-items(center);
+              cursor: pointer;
+              color: #69cb95;
+              opacity: 0;
+              &.active {
+                opacity: 0.8;
+                &:hover {
+                  opacity: 1;
+                }
+              }
+              .remove {
+                color: #f54;
+                opacity: 0.8;
+                margin-left: 5px;
+              }
+            }
           }
-          .removeInactive {
-            opacity: 0
+          .price{
+            width: 15%;
+            font-weight: 200;
+          }
+          .controls {
+            width: 10%;
+            .control {
+              @include flexbox;
+              @include justify-content(center);
+              @include align-items(center);
+              cursor: pointer;
+              color: #69cb95;
+              opacity: 0.8;
+              &:hover {
+                opacity: 1;
+              }
+              .add {
+                // margin-top: 5px;
+              }
+              .remove {
+                color: #f54;
+                opacity: 0.8;
+              }
+            }
           }
         }
       }
@@ -108,14 +200,17 @@
     background: #828E9A;
     color: #fff;
     position: relative;
-    .summary3 {
-      @include flex-basis(10%);
-      white-space: nowrap;
-      font-size: 1.2em;
+    @include transform(translate(0, -500px));
+    opacity: 0;
+    @include transition(transform 0.5s cubic-bezier(0.23, 1, 0.32, 1) 250ms, opacity 0.3s cubic-bezier(0.23, 1, 0.32, 1) 0ms);
+    &.active {
+      @include transform(translate(0, 0));
+      opacity: 1;
+      @include transition(transform 0.5s cubic-bezier(0.23, 1, 0.32, 1) 0ms, opacity 0.3s cubic-bezier(0.23, 1, 0.32, 1) 200ms);
     }
     &:after {
       bottom: 100%;
-      right: 25px;
+      right: 17%;
       border: solid transparent;
       content: " ";
       height: 0;
@@ -127,10 +222,11 @@
       border-width: 10px;
       margin-left: -10px;
     }
-  }
-
-  .inactive {
-    opacity: 0
+    .summary3 {
+      @include flex-basis(10%);
+      white-space: nowrap;
+      font-size: 1.2em;
+    }
   }
   .submit {
     @include flexbox;
@@ -139,7 +235,14 @@
     @include flex-direction(column);
     width: 100%;
     padding: 2em;
-
+    // @include transform(translate(0, 500px));
+    // opacity: 0;
+    // @include transition(transform 0.5s cubic-bezier(0.23, 1, 0.32, 1) 250ms, opacity 0.3s cubic-bezier(0.23, 1, 0.32, 1) 0ms);
+    // &.active {
+    //   @include transform(translate(0, 0));
+    //   opacity: 1;
+    //   @include transition(transform 0.5s cubic-bezier(0.23, 1, 0.32, 1) 0ms, opacity 0.3s cubic-bezier(0.23, 1, 0.32, 1) 200ms);
+    // }
     .button {
       font-size: 1.4em;
       color: #fff;

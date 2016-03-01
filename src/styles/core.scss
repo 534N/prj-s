@@ -16,6 +16,27 @@
     height: 100%;
   }
 
+  a {
+    color: #fff;
+    &:visited {
+      color: #fff;
+      text-decoration: none;
+    }
+    &:active {
+      color: #fff;
+      text-decoration: none;
+    }
+    &:focus {
+      color: #fff;
+      text-decoration: none;
+    }
+    &:hover {
+      color: #fff;
+      text-decoration: none;
+    }
+
+  }
+
   *,
   *:before,
   *:after {
@@ -27,9 +48,8 @@
     // height: 100%;
     .nav {
       background: #4C5767;
-      height: 3em;
       width: 100%;
-      padding: 0 1em;
+      padding: 0.5em;
       @include flexbox;
       @include align-items(center);
       // padding: 0 100px;

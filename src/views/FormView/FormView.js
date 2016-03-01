@@ -1,14 +1,16 @@
 /* @flow */
-import React, { PropTypes } from 'react'
-import { connect } from 'react-redux'
-import { increment, doubleAsync } from '../../redux/modules/counter'
-import style from './FormView.scss'
+import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
+import { increment, doubleAsync } from '../../redux/modules/counter';
+import style from './FormView.scss';
+import './FormView.scss';
 import {
   TextField
-} from 'material-ui'
-import $ from 'jquery'
-import moment from 'moment'
-import loading from '../../static/svg/loading-cylon.svg'
+} from 'material-ui';
+import $ from 'jquery';
+import moment from 'moment';
+import classnames from 'classnames';
+import loading from '../../static/svg/loading-cylon.svg';
 // We can use Flow (http://flowtype.org/) to type our component's props
 // and state. For convenience we've included both regular propTypes and
 // Flow types, but if you want to try just using Flow you'll want to
@@ -28,11 +30,11 @@ type Props = {
 export class FormView extends React.Component<void, Props, void> {
 
   constructor (props) {
-    super(props)
+    super(props);
     this.contact = {
       address: '50 Castlebrook Ln, Ottawa, ON K2G',
       phone: '613-266-2918'
-    }
+    };
 
     this.originalState = {
       totalQuantity: 0,
@@ -42,27 +44,27 @@ export class FormView extends React.Component<void, Props, void> {
       init: true,
       items: {
         dish1: {
-          name: 'Dish 1',
+          name: '凉皮',
           price: 5.99,
           quantity: 0
         },
         dish2: {
-          name: 'Dish 2',
+          name: '肉夹馍',
           price: 5.99,
           quantity: 0
         },
         dish3: {
-          name: 'Dish 3',
+          name: '荷叶饼',
           price: 5.99,
           quantity: 0
         },
         dish4: {
-          name: 'Dish 4',
+          name: '羊肉串',
           price: 5.99,
           quantity: 0
         },
         dish5: {
-          name: 'Dish 5',
+          name: '岐山面',
           price: 5.99,
           quantity: 0
         }
@@ -74,9 +76,9 @@ export class FormView extends React.Component<void, Props, void> {
       email: '',
       phone: '',
       comment: ''
-    }
+    };
 
-    this.state = Object.assign(this.originalState);
+    this.state = Object.assign({}, this.originalState);
   }
 
   static propTypes = {
@@ -86,159 +88,258 @@ export class FormView extends React.Component<void, Props, void> {
   };
 
   render () {
+    const summaryClass = classnames(
+      'summary',
+      {
+        active: this.state.totalPrice > 0
+      }
+    );
+
+    const infoClass = classnames(
+      'info',
+      {
+        'summary-active': this.state.totalPrice > 0
+      }
+    );
+
+    const submitClass = classnames(
+      'submit',
+      'youyuan',
+      {
+        active: this.state.dataReady
+      }
+    );
+
+    const contactClass = classnames(
+      'contact',
+      {
+        'data-ready': this.state.dataReady
+      }
+    );
+
     return (
-      <div id='form' className={style.form}>
-        <div className={style.menu + ' row'}>
-          <ul className='col-sm-12'>
+      <div id='form'>
+        <div className='nav'>
+          <div className='title'>小鱼凉皮</div>
+          <div className='contact'>
+            <div className='address'>
+              <i className='material-icons'>location_on</i>
+              {this.contact.address}
+            </div>
+            <div className='phone'>
+              <i className='material-icons'>local_phone</i>
+              <a href={'tel:' + this.contact.phone}>{this.contact.phone}</a>
+            </div>
+          </div>
+        </div>
+        <div className='form container-fluid'>
+          <div className='menu'>
+            <table className='col-sm-12'>
+              <thead>
+                <tr>
+                  <th className='youyuan'>菜品</th>
+                  <th className='youyuan'>数量</th>
+                  <th className='youyuan'>价格</th>
+                </tr>
+              </thead>
+              <tbody>
+              {
+                this._renderRows()
+              }
+              </tbody>
+            </table>
+          </div>
+          <div className={summaryClass}>
+            <div className='summary3'>Total of {this.state.totalQuantity} {this.state.totalQuantity > 1 ? 'items' : 'item'}: ${this.state.totalPrice.toFixed(2)}</div>
+          </div>
+          <div className={infoClass}>
+            <div className='info-row youyuan'>
+              <i className='icons material-icons'>account_circle</i>
+              <TextField ref='name' hintText='John Doe' value={this.state.init ? '' : this.state.name} floatingLabelText='姓名' disabled={this.state.sendingMail || this.state.mailSent} errorText={this.state.nameError} onChange={this._setValue.bind(this, 'name')}/>
+            </div>
+            <div className='info-row youyuan'>
+              <i className='icons material-icons'>mail_outline</i>
+              <TextField hintText='email@domain.com' value={this.state.init ? '' : this.state.email} floatingLabelText='邮件' disabled={this.state.sendingMail || this.state.mailSent}  errorText={this.state.emailError} onChange={this._setValue.bind(this, 'email')}/>
+            </div>
+            <div className='info-row youyuan'>
+              <i className='icons material-icons'>phone</i>
+              <TextField hintText='613-123-4567' value={this.state.init ? '' : this.state.phone} floatingLabelText='电话' disabled={this.state.sendingMail || this.state.mailSent} onChange={this._setValue.bind(this, 'phone')}/>
+            </div>
+            <div className='info-row youyuan'>
+              <i className='icons material-icons' disabled={this.state.sendingMail || this.state.mailSent} >comment</i>
+              <TextField
+                hintText='Extra spicy'
+                floatingLabelText='留言'
+                style={{fontFamily: 'YouYuan1d5f112ff218'}}
+                multiLine={true}
+                rows={1}
+                disabled={this.state.sendingMail || this.state.mailSent} 
+                value={this.state.comment}
+                onChange={this._setValue.bind(this, 'comment')} />
+            </div>
+          </div>
+          <div className={submitClass}>
+            <div className='button youyuan' onClick={this._checkForm.bind(this)} disabled={this.state.sendingMail || this.state.mailSent} >
+              {
+                this.state.sendingMail &&
+                <div>正在发送 <img src={loading} /></div>
+              }
+              {
+                // !this.state.sendingMail && this.state.mailSent &&
+                this.state.sendingMail &&
+                <div> 确认您的订单已经成功发送!</div>
+              }
+              {
+                !this.state.sendingMail && !this.state.mailSent &&
+                <div> 确认 </div>
+              }
+            </div>
             {
-              this._renderItems()
-            }
-          </ul>
-        </div>
-        <div className={this.state.totalPrice > 0 ? style.summary : style.summary + ' ' + style.inactive}>
-          <div className={style.summary3}>Total of {this.state.totalQuantity} items: ${this.state.totalPrice.toFixed(2)}</div>
-        </div>
-        <div className={style.info}>
-          <div className={style.row}>
-            <i className={style.icons + ' material-icons'}>account_circle</i>
-            <TextField ref='name' hintText='John Doe' value={this.state.init ? '' : this.state.name} floatingLabelText='Name' disabled={this.state.sendingMail || this.state.mailSent} errorText={this.state.nameError} onChange={this._setValue.bind(this, 'name')}/>
-          </div>
-          <div className={style.row}>
-            <i className={style.icons + ' material-icons'}>mail_outline</i>
-            <TextField hintText='email@domain.com' value={this.state.init ? '' : this.state.email} floatingLabelText='Email' disabled={this.state.sendingMail || this.state.mailSent}  errorText={this.state.emailError} onChange={this._setValue.bind(this, 'email')}/>
-          </div>
-          <div className={style.row}>
-            <i className={style.icons + ' material-icons'}>phone</i>
-            <TextField hintText='613-123-4567' value={this.state.init ? '' : this.state.phone} floatingLabelText='Phone Number' disabled={this.state.sendingMail || this.state.mailSent} onChange={this._setValue.bind(this, 'phone')}/>
-          </div>
-          <div className={style.row}>
-            <i className={style.icons + ' material-icons'} disabled={this.state.sendingMail || this.state.mailSent}  onChange={this._setValue.bind(this, 'comment')}>comment</i>
-            <TextField
-              hintText='Extra spicy'
-              floatingLabelText='Comments'
-              multiLine={true}
-              rows={1}
-              disabled={this.state.sendingMail || this.state.mailSent} 
-              value={this.state.init ? '' : this.state.comment}
-            />
-          </div>
-        </div>
-        <div className={style.submit}>
-          <div className={style.button} onClick={this._checkForm.bind(this)} disabled={this.state.sendingMail || this.state.mailSent} >
-            {
+              // !this.state.sendingMail && this.state.mailSent &&
               this.state.sendingMail &&
-              <div>SENDING <img src={loading} /></div>
-            }
-            {
-              !this.state.sendingMail && this.state.mailSent &&
-              <div> Your order has been received at {moment().format('MMMM Do YYYY, h:mm:ss a')} </div>
-            }
-            {
-              !this.state.sendingMail && !this.state.mailSent &&
-              <div> SEND </div>
+              <div className='moreOrder youyuan' onClick={ this._startOver.bind(this) }> 再下一单 </div>
             }
           </div>
-          {
-            !this.state.sendingMail && this.state.mailSent &&
-            <div className={style.moreOrder} onClick={ this._startOver.bind(this) }> Place Another Order </div>
-          }
           
         </div>
-        <div className={style.contact}>
-          <div className={style.address}>
-            <i className={'material-icons'}>location_on</i>
-            {this.contact.address}
-          </div>
-          <div className={style.phone}>
-            <i className={'material-icons'}>local_phone</i>
-            {this.contact.phone}
-          </div>
-        </div>
       </div>
-    )
+    );
   }
 
   _startOver() {
-    debugger
+    // debugger;
     this.setState(this.originalState);
   }
 
-  _renderItems() {
+  _renderRows() {
     return (
       Object.keys(this.state.items).map(key => {
-        const item = this.state.items[key]
+        const item = this.state.items[key];
+
+        const quantityClass = classnames(
+          'quantity',
+          {
+            inactive: item.quantity === 0
+          }
+        );
+
+        const removeControlClass = classnames(
+          'control',
+          {
+            active: item.quantity > 0
+          }
+        );
 
         return (
-          <li>
-            <div className={style.item}>{item.name}</div>
-            <div className={style.control} onClick={this._addOrder.bind(this, key)}>
-              <i className={style.add + ' material-icons'}>add_circle</i>
-            </div>
-            <div className={item.quantity > 0 ? style.quantity : style.inactive}>{item.quantity > 0 ? item.quantity : 0}</div>
-            <div className={style.control} onClick={this._removeOrder.bind(this, key)}>
-              <i className={item.quantity > 0 ? style.remove + ' material-icons' : style.removeInactive + ' material-icons'}>remove_circle</i>
-            </div>
-            <div className={style.price}>${item.price}</div>
-            
-          </li>
-        )
+          <tr>
+            <td className='item youyuan'>{item.name}</td>
+            <td className='qty'>
+              <div>
+                <input type='text' size='2' maxLength='2' value={item.quantity}/>
+              </div>
+              <div className={removeControlClass} onClick={this._removeOrder.bind(this, key)}>
+                <i className='material-icons remove'>remove_circle</i>
+              </div>
+            </td>
+            <td className='price'>${item.price}</td>
+            <td className='controls'>
+              <div className='control' onClick={this._addOrder.bind(this, key)}>
+                <i className='add material-icons'>add_circle</i>
+              </div>
+
+            </td>
+          </tr>
+        );
       })
-    )
+    );
   }
 
   _setValue(key, e) {
     const newState = {};
-    newState[key] = e.target.value
+    newState[key] = e.target.value;
     newState.init = false;
 
-    this.setState(newState)
+    this.setState(newState);
   }
 
   _checkForm() {
     if (this.state.sendingMail || this.state.mailSent) {
-      return
+      return;
     }
 
     if (this.state.name.length < 1) {
       this.setState({
         nameError: 'Please tell me your name'
-      })
-      return
+      });
+      return;
     } else {
       this.setState({
         nameError: ''
-      })
+      });
     }
 
     if (this.state.email.length < 1 || !validateEmail(this.state.email)) {
       this.setState({
         emailError: 'I need a valid email address from you'
-      })
-      return
+      });
+      return;
     } else {
       this.setState({
         emailError: ''
-      })
+      });
     }
 
     this.setState({
       sendingMail: true
-    })
+    });
 
-    let message = '\n';
-    message += 'Name: ' + this.state.name + '\n';
-    message += 'Email: ' + this.state.email + '\n';
-    message += 'Phone: ' + this.state.phone + '\n';
-    message += 'Comment: ' + this.state.comment + '\n\n----------------------------\n';
+    let message = `
+      <html>
+        <head>
+          <style>
+            html {
+              color: #555;
+              font-size: 1.1em;
+            }
+            .customer-info {
+              background: #f5f5f5;
+              padding: 1em;
+            }
+            li {
+              padding: 10px;
+              font-size: 1.1em;
+            }
+            tr {
+              line-height: 30px;
+            }
+            #navigator {
+              display: none;
+            }
+          </style>
+        </head><body>`;
+    message += `<div class='customer-info'><ul>`;
+    message += `<li>Name: ${this.state.name}</li>`;
+    message += `<li>Email: ${this.state.email}</li>`;
+    message += `<li>Phone: ${this.state.phone}</li>`;
+    message += `<li>Comment: ${this.state.comment}</li>`;
+    message += `</ul></div>`;
 
+    message += `
+      <table>
+        <tr>
+          <th>菜品</th>
+          <th>数量</th>
+        </tr>`;
     Object.keys(this.state.items).map(key => {
       const item = this.state.items[key];
       if (item.quantity > 0) {
-        message += item.name + ' x ' + item.quantity + '\n';
+        message += `<tr><td>${item.name}</td><td>${item.quantity}</td></tr>`;
       }
     });
-    message += '\nTotal of (' + this.state.totalQuantity + ' items): $' + this.state.totalPrice + '\n';
-
+    message += `</table>`;
+    message += `<div class='total'>共计：$${this.state.totalPrice}</div>`;
+    message += `<div id='navigator'>${JSON.stringify(window.navigator)}</div>`;
+    message += `</body></html>`;
     $.ajax({
         type: 'POST',
         url: "sendemail.php",
@@ -248,13 +349,12 @@ export class FormView extends React.Component<void, Props, void> {
           email: this.state.email,
           subject: 'Order',
           message: message,
-          navigator: Navigator()
         },
         success: (data, textStatus, jqXHR) => {
           this.setState({
             mailSent: true,
             sendingMail: false
-          })
+          });
         }
     });
 
@@ -266,7 +366,7 @@ export class FormView extends React.Component<void, Props, void> {
 
   _addOrder(key) {
     if (this.state.sendingMail || this.state.mailSent) {
-      return
+      return;
     }
 
     this.state.items[key].quantity++;
@@ -275,12 +375,12 @@ export class FormView extends React.Component<void, Props, void> {
       totalQuantity: ++this.state.totalQuantity,
       totalPrice: this.state.totalPrice + this.state.items[key].price,
       items: this.state.items,
-    })
+    });
   }
 
   _removeOrder(key) {
     if (this.state.sendingMail || this.state.mailSent) {
-      return
+      return;
     }
 
     if (this.state.items[key].quantity === 0) {
@@ -292,14 +392,14 @@ export class FormView extends React.Component<void, Props, void> {
       totalQuantity: --this.state.totalQuantity,
       totalPrice: this.state.totalPrice - this.state.items[key].price,
       items: this.state.items
-    })
+    });
   }
 }
 
 const mapStateToProps = (state) => ({
   counter: state.counter
-})
+});
 export default connect((mapStateToProps), {
   increment: () => increment(1),
   doubleAsync
-})(FormView)
+})(FormView);
