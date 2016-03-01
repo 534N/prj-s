@@ -1,0 +1,169 @@
+
+@import 'flexbox';
+
+.form {
+  @include flexbox;
+  @include flex-direction(column);
+  @include align-items(center);
+  font-size: 1em;
+  width: 100%;
+  .info {
+    @include flex-basis(30%);
+    .row {
+      @include flexbox
+      @include flex-direction(row)
+      @include align-items(center)
+      .icons {
+        margin-top: 23px;
+        margin-right: 30px;
+        font-size: 2em;
+        color: #ccc;
+      }
+    }
+  }
+  .contact {
+    @include flexbox;
+    @include flex-direction(column);
+    @include align-items(center);
+    font-size: 1.3em;
+    width: 100%;
+    color: #ccc;
+    font-weight: 200;
+    // margin-top:  
+    .address {
+      @include flexbox;
+      @include flex-direction(row);
+      @include align-items(center);
+      i {
+        margin-right: 5px;
+      }
+    }
+    .phone {
+      @include flexbox;
+      @include flex-direction(row);
+      @include align-items(center);
+      i {
+        margin-right: 5px;
+      }
+    }
+
+  }
+  .menu {
+    width: 100%;
+    margin-top: 1em;
+    border-bottom: 1px solid #eee;
+    ul {
+      list-style: none;
+      li {
+        @include flexbox;
+        @include flex-direction(row);
+        @include align-items(flex-end);
+        line-height: 2em;
+        font-size: 1.4em;
+        color: #555;
+        .item {
+          @include flex-basis(60%);
+        }
+        .price {
+          @include flex-basis(30%);
+          opacity: 0.7;
+          font-size: 0.8em;
+          text-align: right;
+        }
+        .quantity {
+          text-align: right;
+          opacity: 0.7;
+        }
+        .control {
+          @include flexbox;
+          @include justify-content(center);
+          @include align-items(center);
+          @include flex-basis(5%);
+          cursor: pointer;
+          color: #69cb95;
+          height: 40px;
+          opacity: 0.8;
+          &:hover {
+            opacity: 1;
+          }
+          .remove {
+            color: #f54;
+            opacity: 0.8;
+          }
+          .removeInactive {
+            opacity: 0
+          }
+        }
+      }
+    }
+  }
+  .summary {
+    width: 100%;
+    @include flexbox;
+    @include justify-content(flex-end);
+    @include align-items(center);
+    opacity: 1;
+    padding: 1em;
+    font-size: 1.2em;
+    background: #828E9A;
+    color: #fff;
+    position: relative;
+    .summary3 {
+      @include flex-basis(10%);
+      white-space: nowrap;
+      font-size: 1.2em;
+    }
+    &:after {
+      bottom: 100%;
+      right: 25px;
+      border: solid transparent;
+      content: " ";
+      height: 0;
+      width: 0;
+      position: absolute;
+      pointer-events: none;
+      border-color: rgba(130, 142, 154, 0);
+      border-bottom-color: #828E9A;
+      border-width: 10px;
+      margin-left: -10px;
+    }
+  }
+
+  .inactive {
+    opacity: 0
+  }
+  .submit {
+    @include flexbox;
+    @include justify-content(center);
+    @include align-items(center);
+    @include flex-direction(column);
+    width: 100%;
+    padding: 2em;
+
+    .button {
+      font-size: 1.4em;
+      color: #fff;
+      background: #69cb95;
+      padding: 0.5em 4em;
+      opacity: 0.8;
+      cursor: pointer;
+      &:hover {
+        opacity: 1;
+      }
+    }
+    .moreOrder {
+      font-size: 1.4em;
+      color: #fff;
+      background: #F6C674;
+      padding: 0.5em 4em;
+      opacity: 0.8;
+      cursor: pointer;
+      margin-top: 1em;
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+  
+  
+}
