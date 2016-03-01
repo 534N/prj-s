@@ -49,6 +49,7 @@
     .nav {
       background: #4C5767;
       width: 100%;
+      height: 112px;
       padding: 0.5em;
       @include flexbox;
       @include align-items(center);

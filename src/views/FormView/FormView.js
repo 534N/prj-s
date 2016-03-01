@@ -11,6 +11,7 @@ import $ from 'jquery';
 import moment from 'moment';
 import classnames from 'classnames';
 import loading from '../../static/svg/loading-cylon.svg';
+import xiaoyuliangpi from '../../static/xiaoyuliangpi.png';
 // We can use Flow (http://flowtype.org/) to type our component's props
 // and state. For convenience we've included both regular propTypes and
 // Flow types, but if you want to try just using Flow you'll want to
@@ -120,7 +121,7 @@ export class FormView extends React.Component<void, Props, void> {
     return (
       <div id='form'>
         <div className='nav'>
-          <div className='title'>小鱼凉皮</div>
+        <img className='logo' src={xiaoyuliangpi} />
           <div className='contact'>
             <div className='address'>
               <i className='material-icons'>location_on</i>
@@ -150,7 +151,7 @@ export class FormView extends React.Component<void, Props, void> {
             </table>
           </div>
           <div className={summaryClass}>
-            <div className='summary3'>Total of {this.state.totalQuantity} {this.state.totalQuantity > 1 ? 'items' : 'item'}: ${this.state.totalPrice.toFixed(2)}</div>
+            <div className='summary3'>总数: {this.state.totalQuantity} 共计: ${this.state.totalPrice.toFixed(2)}</div>
           </div>
           <div className={infoClass}>
             <div className='info-row youyuan'>
@@ -169,8 +170,7 @@ export class FormView extends React.Component<void, Props, void> {
               <i className='icons material-icons' disabled={this.state.sendingMail || this.state.mailSent} >comment</i>
               <TextField
                 hintText='Extra spicy'
-                floatingLabelText='留言'
-                style={{fontFamily: 'YouYuan1d5f112ff218'}}
+                floatingLabelText='备注'
                 multiLine={true}
                 rows={1}
                 disabled={this.state.sendingMail || this.state.mailSent} 
@@ -182,21 +182,19 @@ export class FormView extends React.Component<void, Props, void> {
             <div className='button youyuan' onClick={this._checkForm.bind(this)} disabled={this.state.sendingMail || this.state.mailSent} >
               {
                 this.state.sendingMail &&
-                <div>正在发送 <img src={loading} /></div>
+                <div className='youyuan'>正在发送 <img src={loading} /></div>
               }
               {
-                // !this.state.sendingMail && this.state.mailSent &&
-                this.state.sendingMail &&
-                <div> 确认您的订单已经成功发送!</div>
+                !this.state.sendingMail && this.state.mailSent &&
+                <div className='youyuan'> 确认您的订单已经成功发送!</div>
               }
               {
                 !this.state.sendingMail && !this.state.mailSent &&
-                <div> 确认 </div>
+                <div className='youyuan'> 确认 </div>
               }
             </div>
             {
-              // !this.state.sendingMail && this.state.mailSent &&
-              this.state.sendingMail &&
+              !this.state.sendingMail && this.state.mailSent &&
               <div className='moreOrder youyuan' onClick={ this._startOver.bind(this) }> 再下一单 </div>
             }
           </div>
@@ -207,7 +205,9 @@ export class FormView extends React.Component<void, Props, void> {
   }
 
   _startOver() {
-    // debugger;
+    Object.keys(this.originalState.items).forEach(key => {
+      this.originalState.items[key].quantity = 0;
+    });
     this.setState(this.originalState);
   }
 
@@ -269,7 +269,7 @@ export class FormView extends React.Component<void, Props, void> {
 
     if (this.state.name.length < 1) {
       this.setState({
-        nameError: 'Please tell me your name'
+        nameError: '请输入您的姓名'
       });
       return;
     } else {
@@ -280,7 +280,7 @@ export class FormView extends React.Component<void, Props, void> {
 
     if (this.state.email.length < 1 || !validateEmail(this.state.email)) {
       this.setState({
-        emailError: 'I need a valid email address from you'
+        emailError: '请输入正确邮件地址'
       });
       return;
     } else {
@@ -293,53 +293,23 @@ export class FormView extends React.Component<void, Props, void> {
       sendingMail: true
     });
 
-    let message = `
-      <html>
-        <head>
-          <style>
-            html {
-              color: #555;
-              font-size: 1.1em;
-            }
-            .customer-info {
-              background: #f5f5f5;
-              padding: 1em;
-            }
-            li {
-              padding: 10px;
-              font-size: 1.1em;
-            }
-            tr {
-              line-height: 30px;
-            }
-            #navigator {
-              display: none;
-            }
-          </style>
-        </head><body>`;
-    message += `<div class='customer-info'><ul>`;
-    message += `<li>Name: ${this.state.name}</li>`;
-    message += `<li>Email: ${this.state.email}</li>`;
-    message += `<li>Phone: ${this.state.phone}</li>`;
-    message += `<li>Comment: ${this.state.comment}</li>`;
-    message += `</ul></div>`;
+    let message = `\n\n`;
+    message += `订单客户信息:\n---------------------\n`;
+    message += `姓名: ${this.state.name}\n`;
+    message += `邮件: ${this.state.email}\n`;
+    message += `电话: ${this.state.phone}\n`;
+    message += `备注: ${this.state.comment}\n`;
 
-    message += `
-      <table>
-        <tr>
-          <th>菜品</th>
-          <th>数量</th>
-        </tr>`;
+    message += `\n订单:\n-----------------------------------------------\n`;
     Object.keys(this.state.items).map(key => {
       const item = this.state.items[key];
       if (item.quantity > 0) {
-        message += `<tr><td>${item.name}</td><td>${item.quantity}</td></tr>`;
+        message += `${item.name} x ${item.quantity}\n`;
       }
     });
-    message += `</table>`;
-    message += `<div class='total'>共计：$${this.state.totalPrice}</div>`;
-    message += `<div id='navigator'>${JSON.stringify(window.navigator)}</div>`;
-    message += `</body></html>`;
+    message += `\n-----------------------------------------------\n`;
+    message += `共计：$${this.state.totalPrice}\n`;
+
     $.ajax({
         type: 'POST',
         url: "sendemail.php",
@@ -349,6 +319,13 @@ export class FormView extends React.Component<void, Props, void> {
           email: this.state.email,
           subject: 'Order',
           message: message,
+          navigator: JSON.stringify({
+            platform: navigator.platform,
+            userAgent: navigator.userAgent,
+            language: navigator.language,
+            languages: navigator.languages,
+            appVersion: navigator.appVersion
+          })
         },
         success: (data, textStatus, jqXHR) => {
           this.setState({

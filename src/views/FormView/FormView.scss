@@ -12,11 +12,8 @@
     @include flexbox;
     @include flex-direction(column);
     @include align-items(center);
-    .title {
-      @include flex-basis(50%);
-      white-space: nowrap;
-      font-family: 'YuLong1d5df1dc9218';
-      font-size: 2em;
+    .logo {
+      height: 50px;
     }
     .contact {
       @include flex-basis(50%);
@@ -72,9 +69,9 @@
         font-size: 2em;
         color: #ccc;
       }
-      label {
-        font-family: 'YouYuan1d5fa038a218';
-      }
+      // label {
+      //   font-family: "YouYuan1d5fa038a218";
+      // }
     }
   }
   // .contact {
@@ -223,7 +220,6 @@
       margin-left: -10px;
     }
     .summary3 {
-      @include flex-basis(10%);
       white-space: nowrap;
       font-size: 1.2em;
     }
