@@ -5,13 +5,17 @@ import { increment, doubleAsync } from '../../redux/modules/counter';
 import style from './FormView.scss';
 import './FormView.scss';
 import {
-  TextField
+  TextField,
+  SelectField,
+  MenuItem
 } from 'material-ui';
 import $ from 'jquery';
 import moment from 'moment';
 import classnames from 'classnames';
 import loading from '../../static/svg/loading-cylon.svg';
 import xiaoyuliangpi from '../../static/xiaoyuliangpi.png';
+import { createClass } from 'asteroid';
+
 // We can use Flow (http://flowtype.org/) to type our component's props
 // and state. For convenience we've included both regular propTypes and
 // Flow types, but if you want to try just using Flow you'll want to
@@ -25,6 +29,21 @@ type Props = {
   increment: Function
 };
 
+const Asteroid = createClass();
+// Connect to a Meteor backend
+const asteroid = new Asteroid({
+    // endpoint: 'ws://localhost:8080/websocket'
+  endpoint: 'ws://prj-sm.herokuapp.com/websocket'
+});
+// Use real-time collections
+asteroid.subscribe('tasks');
+
+asteroid.ddp.on('added', ({collection, id, fields}) => {
+    console.log(`Element added to collection ${collection}`);
+    console.log(id);
+    console.log(fields);
+});
+
 // We avoid using the `@connect` decorator on the class definition so
 // that we can export the undecorated component for testing.
 // See: http://rackt.github.io/redux/docs/recipes/WritingTests.html
@@ -32,44 +51,13 @@ export class FormView extends React.Component<void, Props, void> {
 
   constructor (props) {
     super(props);
-    this.contact = {
-      address: '50 Castlebrook Ln, Ottawa, ON K2G',
-      phone: '613-266-2918'
-    };
-
     this.originalState = {
       totalQuantity: 0,
       totalPrice: 0,
       sendingMail: false,
       mailSent: false,
       init: true,
-      items: {
-        dish1: {
-          name: '凉皮',
-          price: 5.99,
-          quantity: 0
-        },
-        dish2: {
-          name: '肉夹馍',
-          price: 5.99,
-          quantity: 0
-        },
-        dish3: {
-          name: '荷叶饼',
-          price: 5.99,
-          quantity: 0
-        },
-        dish4: {
-          name: '羊肉串',
-          price: 5.99,
-          quantity: 0
-        },
-        dish5: {
-          name: '岐山面',
-          price: 5.99,
-          quantity: 0
-        }
-      },
+      items: {},
       nameError: '',
       emailError: '',
       phoneError: '',
@@ -78,6 +66,13 @@ export class FormView extends React.Component<void, Props, void> {
       phone: '',
       comment: ''
     };
+
+    this.contact = {
+      address: '50 Castlebrook Ln, Ottawa, ON K2G',
+      phone: '613-266-2918'
+    };
+
+    this.pickupTimes = ['上午取 (11:00 - 13:00)', '下午取 (16:00 - 18:00)'];
 
     this.state = Object.assign({}, this.originalState);
   }
@@ -88,11 +83,48 @@ export class FormView extends React.Component<void, Props, void> {
     increment: PropTypes.func.isRequired
   };
 
+  componentWillMount() {
+    const setState = function(result) {
+      let items = {};
+      result.forEach((item, idx) => {
+        item.quantity = 0;
+        items[`dish${idx}`] = item;
+      });
+      this.items = items;
+
+      this.originalState.items = items,
+      this.setState({
+        items: items
+      });
+
+    }.bind(this);
+
+    asteroid.call('getDishes', 'xiaoyuliangpi')
+      .then(result => {
+        console.log('Success');
+        console.log(result);
+       
+        setState(result);
+          
+      })
+      .catch(error => {
+        console.log('Error');
+        console.error(error);
+      });
+  }
+
   render () {
     const summaryClass = classnames(
       'summary',
       {
         active: this.state.totalPrice > 0
+      }
+    );
+
+    const errorClass = classnames(
+      'error',
+      {
+        active: this.state.orderError
       }
     );
 
@@ -153,24 +185,27 @@ export class FormView extends React.Component<void, Props, void> {
           <div className={summaryClass}>
             <div className='summary3'>总数: {this.state.totalQuantity} 共计: ${this.state.totalPrice.toFixed(2)}</div>
           </div>
+          <div className={errorClass}>
+            <div className='statement'>{this.state.orderError}</div>
+          </div>
           <div className={infoClass}>
             <div className='info-row youyuan'>
-              <i className='icons material-icons'>account_circle</i>
-              <TextField ref='name' hintText='John Doe' value={this.state.init ? '' : this.state.name} floatingLabelText='姓名' disabled={this.state.sendingMail || this.state.mailSent} errorText={this.state.nameError} onChange={this._setValue.bind(this, 'name')}/>
-            </div>
-            <div className='info-row youyuan'>
-              <i className='icons material-icons'>mail_outline</i>
-              <TextField hintText='email@domain.com' value={this.state.init ? '' : this.state.email} floatingLabelText='邮件' disabled={this.state.sendingMail || this.state.mailSent}  errorText={this.state.emailError} onChange={this._setValue.bind(this, 'email')}/>
-            </div>
-            <div className='info-row youyuan'>
               <i className='icons material-icons'>phone</i>
-              <TextField hintText='613-123-4567' value={this.state.init ? '' : this.state.phone} floatingLabelText='电话' disabled={this.state.sendingMail || this.state.mailSent} onChange={this._setValue.bind(this, 'phone')}/>
+              <TextField hintText='613-123-4567' value={this.state.init ? '' : this.state.phone} floatingLabelText='电话' disabled={this.state.sendingMail || this.state.mailSent} errorText={this.state.phoneError} onChange={this._setValue.bind(this, 'phone')}/>
+            </div>
+            <div className='info-row youyuan'>
+              <i className='icons material-icons'>event</i>
+              <SelectField value={this.state.init ? '' : this.state.pickup} errorText={this.state.pickupError} floatingLabelText="取货时间" onChange={this._setValue.bind(this, 'pickup')}>
+                {
+                  this._renderPickupTimes()
+                }
+              </SelectField>
             </div>
             <div className='info-row youyuan'>
               <i className='icons material-icons' disabled={this.state.sendingMail || this.state.mailSent} >comment</i>
               <TextField
-                hintText='Extra spicy'
-                floatingLabelText='备注'
+                hintText='加辣'
+                floatingLabelText='备注 (可不填)'
                 multiLine={true}
                 rows={1}
                 disabled={this.state.sendingMail || this.state.mailSent} 
@@ -211,6 +246,14 @@ export class FormView extends React.Component<void, Props, void> {
     this.setState(this.originalState);
   }
 
+  _renderPickupTimes() {
+    return (
+      this.pickupTimes.map((time, idx) => {
+        return <MenuItem value={idx} primaryText={time} />;
+      })
+    );
+  }
+
   _renderRows() {
     return (
       Object.keys(this.state.items).map(key => {
@@ -231,7 +274,7 @@ export class FormView extends React.Component<void, Props, void> {
         );
 
         return (
-          <tr>
+          <tr key={key}>
             <td className='item youyuan'>{item.name}</td>
             <td className='qty'>
               <div>
@@ -254,11 +297,11 @@ export class FormView extends React.Component<void, Props, void> {
     );
   }
 
-  _setValue(key, e) {
+  _setValue(key, e, value) {
     const newState = {};
-    newState[key] = e.target.value;
+    newState[key] = value !== undefined ? value : e.target.value;
     newState.init = false;
-
+    console.debug('>>>', newState);
     this.setState(newState);
   }
 
@@ -267,27 +310,60 @@ export class FormView extends React.Component<void, Props, void> {
       return;
     }
 
-    if (this.state.name.length < 1) {
+    if (this.state.totalQuantity < 1) {
       this.setState({
-        nameError: '请输入您的姓名'
+        orderError: '您忘了点菜啦'
       });
       return;
     } else {
       this.setState({
-        nameError: ''
+        orderError: ''
       });
     }
 
-    if (this.state.email.length < 1 || !validateEmail(this.state.email)) {
+    if (this.state.phone.length !== 10) {
       this.setState({
-        emailError: '请输入正确邮件地址'
+        phoneError: '请检查您输入的电话号码'
       });
       return;
     } else {
       this.setState({
-        emailError: ''
+        phoneError: ''
       });
     }
+
+    if (this.state.pickup === undefined) {
+      this.setState({
+        pickupError: '请选择取货时间'
+      });
+      return;
+    } else {
+      this.setState({
+        pickupError: ''
+      });
+    }
+
+    // if (this.state.name.length < 1) {
+    //   this.setState({
+    //     nameError: '请输入您的姓名'
+    //   });
+    //   return;
+    // } else {
+    //   this.setState({
+    //     nameError: ''
+    //   });
+    // }
+
+    // if (this.state.email.length < 1 || !validateEmail(this.state.email)) {
+    //   this.setState({
+    //     emailError: '请输入正确邮件地址'
+    //   });
+    //   return;
+    // } else {
+    //   this.setState({
+    //     emailError: ''
+    //   });
+    // }
 
     this.setState({
       sendingMail: true
@@ -299,6 +375,7 @@ export class FormView extends React.Component<void, Props, void> {
     message += `邮件: ${this.state.email}\n`;
     message += `电话: ${this.state.phone}\n`;
     message += `备注: ${this.state.comment}\n`;
+    message += `取货时间: ${this.state.pickup}\n`;
 
     message += `\n订单:\n-----------------------------------------------\n`;
     Object.keys(this.state.items).map(key => {
@@ -310,9 +387,54 @@ export class FormView extends React.Component<void, Props, void> {
     message += `\n-----------------------------------------------\n`;
     message += `共计：$${this.state.totalPrice}\n`;
 
+    const order = {
+      items: this.state.items,
+      customer: {
+        name: this.state.name,
+        email: this.state.email,
+        phone: this.state.phone
+      },
+      comment: this.state.comment,
+      pickup: this.pickupTimes[this.state.pickup],
+      totalPrice: this.state.totalPrice,
+      totalQuantity: this.state.totalQuantity,
+      owner: 'xiaoyuliangpi',
+    };
+
+    const setState = function() {
+      this.setState({
+        mailSent: true,
+        sendingMail: false
+      });
+
+    }.bind(this);
+
+    asteroid.call('addOrder', order)
+      .then(result => {
+        console.log('Success');
+        console.log(result);
+        
+        setState();
+
+        // asteroid.call('sendEmail', this.state.email, 'xiaofany@hotmail.com', 'Order', message})
+        //   .then(result => {
+        //     console.log('Success');
+        //     console.log(result);
+        //   })
+        //   .catch(error => {
+        //     console.log('Error');
+        //     console.error(error);
+        //   });
+
+      })
+      .catch(error => {
+        console.log('Error');
+        console.error(error);
+      });
+
     $.ajax({
         type: 'POST',
-        url: "sendemail.php",
+        url: 'sendemail.php',
         dataType: 'json',
         data: {
           name: this.state.name,
@@ -352,6 +474,7 @@ export class FormView extends React.Component<void, Props, void> {
       totalQuantity: ++this.state.totalQuantity,
       totalPrice: this.state.totalPrice + this.state.items[key].price,
       items: this.state.items,
+      orderError: ''
     });
   }
 

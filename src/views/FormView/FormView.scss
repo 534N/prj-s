@@ -53,7 +53,7 @@
     @include flexbox;
     @include flex-direction(column);
     @include align-items(center);
-    @include transform(translate(0, -50px));
+    @include transform(translate(0, -60px));
     @include transition(transform 0.5s cubic-bezier(0.23, 1, 0.32, 1) 250ms, opacity 0.3s cubic-bezier(0.23, 1, 0.32, 1) 0ms);
     &.summary-active {
       @include transform(translate(0, 0));
@@ -220,6 +220,30 @@
       margin-left: -10px;
     }
     .summary3 {
+      white-space: nowrap;
+      font-size: 1.2em;
+    }
+  }
+  .error {
+    width: 100%;
+    @include flexbox;
+    @include justify-content(flex-end);
+    @include align-items(center);
+    opacity: 1;
+    font-size: 1em;
+    border-top: 2px solid #f54;
+    color: #f54;
+    background: #fff;
+    position: relative;
+    @include transform(translate(0, -500px));
+    opacity: 0;
+    @include transition(transform 0.5s cubic-bezier(0.23, 1, 0.32, 1) 250ms, opacity 0.3s cubic-bezier(0.23, 1, 0.32, 1) 0ms);
+    &.active {
+      @include transform(translate(0, -62px));
+      opacity: 1;
+      @include transition(transform 0.3s cubic-bezier(0.23, 1, 0.32, 1) 0ms, opacity 0.3s cubic-bezier(0.23, 1, 0.32, 1) 200ms);
+    }
+    .statement {
       white-space: nowrap;
       font-size: 1.2em;
     }
