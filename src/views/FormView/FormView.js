@@ -165,7 +165,7 @@ export class FormView extends React.Component<void, Props, void> {
             </div>
           </div>
         </div>
-        <div className='banner'>网络订单一律享受10%折扣</div>
+        <div className='banner'>此处下单已享受10%折扣</div>
         <div className='form container-fluid'>
 
           <div className='menu'>
