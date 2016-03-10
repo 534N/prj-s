@@ -14,7 +14,7 @@ export default (store) => (
 
   <Route path='/yang' component={CoreLayout}>
     <IndexRoute component={HomeView} />
-    <Route path='form/:userid' component={FormView} />
+    <Route path='form' component={FormView} />
   </Route>
 
 );
