@@ -64,7 +64,9 @@ export class FormView extends React.Component<void, Props, void> {
       name: '',
       email: '',
       phone: '',
-      comment: ''
+      comment: '',
+      pickupDay: parseInt(new Date().getDay()),
+      pickupTime: 1,
     };
 
     this.contact = {
@@ -77,10 +79,14 @@ export class FormView extends React.Component<void, Props, void> {
     this.state = Object.assign({}, this.originalState);
   }
 
+  static contextTypes = {
+    router: React.PropTypes.func.isRequired
+  };
+
   static propTypes = {
     counter: PropTypes.number.isRequired,
     doubleAsync: PropTypes.func.isRequired,
-    increment: PropTypes.func.isRequired
+    increment: PropTypes.func.isRequired,
   };
 
   componentWillMount() {
@@ -153,17 +159,19 @@ export class FormView extends React.Component<void, Props, void> {
     return (
       <div id='form'>
         <div className='nav'>
-        <img className='logo' src={xiaoyuliangpi} />
-          <div className='contact'>
-            <div className='address'>
-              <i className='material-icons'>location_on</i>
-              {this.contact.address}
-            </div>
-            <div className='phone'>
-              <i className='material-icons'>local_phone</i>
-              <a href={'tel:' + this.contact.phone}>{this.contact.phone}</a>
-            </div>
-          </div>
+          <img className='logo' src={xiaoyuliangpi} />
+          {
+            // <div className='contact'>
+            //   <div className='address'>
+            //     <i className='material-icons'>location_on</i>
+            //     {this.contact.address}
+            //   </div>
+            //   <div className='phone'>
+            //     <i className='material-icons'>local_phone</i>
+            //     <a href={'tel:' + this.contact.phone}>{this.contact.phone}</a>
+            //   </div>
+            // </div>
+          }
         </div>
         <div className='banner'>此处下单已享受10%折扣</div>
         <div className='form container-fluid'>
@@ -197,7 +205,15 @@ export class FormView extends React.Component<void, Props, void> {
             </div>
             <div className='info-row youyuan'>
               <i className='icons material-icons'>event</i>
-              <SelectField value={this.state.init ? '' : this.state.pickup} errorText={this.state.pickupError} floatingLabelText="取货时间" onChange={this._setValue.bind(this, 'pickup')}>
+              <SelectField value={this.state.pickupDay} errorText={this.state.pickupError} floatingLabelText="取货日期" onChange={this._setValue.bind(this, 'pickupDay')}>
+                {
+                  this._renderPickupDays()
+                }
+              </SelectField>
+            </div> 
+            <div className='info-row youyuan'>
+              <i className='icons material-icons'>event</i>
+              <SelectField value={this.state.pickupTime} errorText={this.state.pickupError} floatingLabelText="取货时间" onChange={this._setValue.bind(this, 'pickupTime')}>
                 {
                   this._renderPickupTimes()
                 }
@@ -223,7 +239,7 @@ export class FormView extends React.Component<void, Props, void> {
               }
               {
                 !this.state.sendingMail && this.state.mailSent &&
-                <div className='youyuan'> 确认您的订单已经成功发送!</div>
+                <div className='youyuan'> 确认您的订单已经成功发送! 我们将在订单开始处理时给你发送短信！</div>
               }
               {
                 !this.state.sendingMail && !this.state.mailSent &&
@@ -248,10 +264,32 @@ export class FormView extends React.Component<void, Props, void> {
     this.setState(this.originalState);
   }
 
+   _renderPickupDays() {
+    this.weekDays = {
+      1: '星期一',
+      2: '星期二',
+      3: '星期三',
+      4: '星期四',
+      5: '星期五',
+      6: '星期六',
+      7: '星期日',
+    };
+
+    const curr = new Date().getDay();
+    return (
+      Object.keys(this.weekDays).map(idx => {
+        const day = this.weekDays[idx];
+        const text = parseInt(idx) === curr ? '今天' : day;
+        const disabled = parseInt(idx) < curr;
+        return <MenuItem key={idx} value={parseInt(idx)} primaryText={text} disabled={disabled}/>;
+      })
+    );
+  }
+
   _renderPickupTimes() {
     return (
       this.pickupTimes.map((time, idx) => {
-        return <MenuItem value={idx} primaryText={time} />;
+        return <MenuItem key={idx} value={idx} primaryText={time} />;
       })
     );
   }
@@ -334,7 +372,7 @@ export class FormView extends React.Component<void, Props, void> {
       });
     }
 
-    if (this.state.pickup === undefined) {
+    if (this.state.pickupTime === undefined) {
       this.setState({
         pickupError: '请选择取货时间'
       });
@@ -345,27 +383,16 @@ export class FormView extends React.Component<void, Props, void> {
       });
     }
 
-    // if (this.state.name.length < 1) {
-    //   this.setState({
-    //     nameError: '请输入您的姓名'
-    //   });
-    //   return;
-    // } else {
-    //   this.setState({
-    //     nameError: ''
-    //   });
-    // }
-
-    // if (this.state.email.length < 1 || !validateEmail(this.state.email)) {
-    //   this.setState({
-    //     emailError: '请输入正确邮件地址'
-    //   });
-    //   return;
-    // } else {
-    //   this.setState({
-    //     emailError: ''
-    //   });
-    // }
+    if (this.state.pickupDay === undefined) {
+      this.setState({
+        pickupError: '请选择取货日期'
+      });
+      return;
+    } else {
+      this.setState({
+        pickupError: ''
+      });
+    }
 
     this.setState({
       sendingMail: true
@@ -397,7 +424,8 @@ export class FormView extends React.Component<void, Props, void> {
         phone: this.state.phone
       },
       comment: this.state.comment,
-      pickup: this.pickupTimes[this.state.pickup],
+      pickupTime: this.pickupTimes[this.state.pickupTime],
+      pickupDay: this.weekDays[this.state.pickupDay],
       totalPrice: this.state.totalPrice,
       totalQuantity: this.state.totalQuantity,
       owner: 'xiaoyuliangpi',

@@ -12,6 +12,7 @@
     @include flexbox;
     @include flex-direction(column);
     @include align-items(center);
+    height: 70px;
     .logo {
       height: 50px;
     }
