@@ -13,7 +13,6 @@ import $ from 'jquery';
 import moment from 'moment';
 import classnames from 'classnames';
 import loading from '../../static/svg/loading-cylon.svg';
-import xiaoyuliangpi from '../../static/xiaoyuliangpi.png';
 import { createClass } from 'asteroid';
 
 // We can use Flow (http://flowtype.org/) to type our component's props
@@ -67,21 +66,13 @@ export class FormView extends React.Component<void, Props, void> {
       comment: '',
       pickupDay: parseInt(new Date().getDay()),
       pickupTime: 1,
+      pickupTimes: [],
     };
-
-    this.contact = {
-      address: '50 Castlebrook Ln, Ottawa, ON K2G',
-      phone: '613-266-2918'
-    };
-
-    this.pickupTimes = ['上午取 (11:00 - 13:00)', '下午取 (16:00 - 18:00)'];
 
     this.state = Object.assign({}, this.originalState);
-  }
+    this.logo = require(`../../static/${this.props.params.userID}.png`);
 
-  static contextTypes = {
-    router: React.PropTypes.func.isRequired
-  };
+  }
 
   static propTypes = {
     counter: PropTypes.number.isRequired,
@@ -90,6 +81,9 @@ export class FormView extends React.Component<void, Props, void> {
   };
 
   componentWillMount() {
+    // this.pickupTimes = ['上午取 (11:00 - 13:00)', '下午取 (16:00 - 18:00)'];
+    
+
     const setState = function(result) {
       let items = {};
       result.forEach((item, idx) => {
@@ -105,13 +99,31 @@ export class FormView extends React.Component<void, Props, void> {
 
     }.bind(this);
 
-    asteroid.call('getDishes', 'xiaoyuliangpi')
+    asteroid.call('getDishes', this.props.params.userID)
       .then(result => {
-        console.log('Success');
-        console.log(result);
-       
         setState(result);
-          
+      })
+      .catch(error => {
+        console.log('Error');
+        console.error(error);
+      });
+
+
+    const setPickupTimes = function(result) {
+      if(!result[0].schedule) {
+        return;
+      }
+
+      this.pickupTimes = result[0].schedule;
+
+      this.setState({
+        pickupTimes: result[0].schedule
+      });
+    }.bind(this);
+
+    asteroid.call('getSchedule', this.props.params.userID)
+      .then(result => {
+        setPickupTimes(result);
       })
       .catch(error => {
         console.log('Error');
@@ -159,7 +171,7 @@ export class FormView extends React.Component<void, Props, void> {
     return (
       <div id='form'>
         <div className='nav'>
-          <img className='logo' src={xiaoyuliangpi} />
+          <img className='logo' src={this.logo} />
           {
             // <div className='contact'>
             //   <div className='address'>
@@ -173,7 +185,7 @@ export class FormView extends React.Component<void, Props, void> {
             // </div>
           }
         </div>
-        <div className='banner'>此处下单已享受10%折扣</div>
+        <div className='banner'>网络订单一律享受10%折扣</div>
         <div className='form container-fluid'>
 
           <div className='menu'>
@@ -287,8 +299,12 @@ export class FormView extends React.Component<void, Props, void> {
   }
 
   _renderPickupTimes() {
+    if (this.state.pickupTimes.length === 0) {
+      return;
+    }
+
     return (
-      this.pickupTimes.map((time, idx) => {
+      this.state.pickupTimes.map((time, idx) => {
         return <MenuItem key={idx} value={idx} primaryText={time} />;
       })
     );
@@ -424,11 +440,11 @@ export class FormView extends React.Component<void, Props, void> {
         phone: this.state.phone
       },
       comment: this.state.comment,
-      pickupTime: this.pickupTimes[this.state.pickupTime],
+      pickupTime: this.state.pickupTimes[this.state.pickupTime],
       pickupDay: this.weekDays[this.state.pickupDay],
       totalPrice: this.state.totalPrice,
       totalQuantity: this.state.totalQuantity,
-      owner: 'xiaoyuliangpi',
+      owner: this.props.params.userID,
     };
 
     const setState = function() {
@@ -441,21 +457,7 @@ export class FormView extends React.Component<void, Props, void> {
 
     asteroid.call('addOrder', order)
       .then(result => {
-        console.log('Success');
-        console.log(result);
-        
         setState();
-
-        // asteroid.call('sendEmail', this.state.email, 'xiaofany@hotmail.com', 'Order', message})
-        //   .then(result => {
-        //     console.log('Success');
-        //     console.log(result);
-        //   })
-        //   .catch(error => {
-        //     console.log('Error');
-        //     console.error(error);
-        //   });
-
       })
       .catch(error => {
         console.log('Error');
